@@ -154,7 +154,12 @@ export class MenuHierarchyService {
   ): Promise<BaseResponseDto<CreateMenuHierarchyResponseDto[]>> {
     try {
       const existingMenuHierarchy = await this.prisma.menuHierarchy.findMany({
-        where: { parentId : id },
+        where: { 
+          OR: [
+            { parentId : id },
+            { id },
+          ],
+        }
       });
 
       if (!existingMenuHierarchy.length) {
