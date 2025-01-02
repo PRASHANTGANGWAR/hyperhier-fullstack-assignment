@@ -49,7 +49,7 @@ export class MenuHierarchyController {
   @Delete(':id')
   remove(
     @Param('id') id: string,
-  ): Promise<BaseResponseDto<CreateMenuHierarchyResponseDto>> {
+  ): Promise<BaseResponseDto<CreateMenuHierarchyResponseDto[]>> {
     return this.menuHierarchyService.remove(id);
   }
 }

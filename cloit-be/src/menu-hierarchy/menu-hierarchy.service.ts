@@ -151,26 +151,39 @@ export class MenuHierarchyService {
 
   async remove(
     id: string,
-  ): Promise<BaseResponseDto<CreateMenuHierarchyResponseDto>> {
+  ): Promise<BaseResponseDto<CreateMenuHierarchyResponseDto[]>> {
     try {
-      const existingMenuHierarchy = await this.prisma.menuHierarchy.findUnique({
-        where: { id },
+      const existingMenuHierarchy = await this.prisma.menuHierarchy.findMany({
+        where: { parentId : id },
       });
 
-      if (!existingMenuHierarchy) {
+      if (!existingMenuHierarchy.length) {
         throw new NotFoundException(
           REESPONSE_MESSAGES.MENU_HIERARCHY_NOT_FOUND,
         );
       }
+      const idArr: string[] = [];
+      for(let i=0; i< existingMenuHierarchy.length;i++){
+        idArr.push(existingMenuHierarchy[i].parentId)
+      }
 
-      const deletedData = await this.prisma.menuHierarchy.delete({
+      await this.prisma.menuHierarchy.delete({
         where: { id },
       });
+
+      const deletedRecords = await this.prisma.menuHierarchy.deleteMany({
+        where: {
+          parentId: {
+            in: idArr, 
+          },
+        },
+      });
+      
 
       return responseHandler(
         HttpStatus.OK,
         REESPONSE_MESSAGES.MENU_HIERARCHY_DELETED,
-        deletedData,
+        deletedRecords,
       );
     } catch (error) {
       throw error;
